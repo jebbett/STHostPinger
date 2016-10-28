@@ -29,12 +29,12 @@ C. Paste App source code with the code from the file SmartApp_HostPinger.txt.
 
 D. Save and publish the app for yourself.
 
-E. Enable OAuth in IDE by going in to IDE > My Smart Apps > Plex Plus > App Settings > Enable OAuth.
+E. Enable OAuth in IDE by going in to IDE > My Smart Apps > [App Name] > App Settings > Enable OAuth.
 
 F. Get the Token and API Endpoint values via one of the below methods:
 
 * EASY OPTION: Enable debugging, open live logging in IDE and then open the app again and press done and values will be returned in Live Logging.
-* Open the PlexPlus smart app and click API Information.
+* Open the SmartApp and click API Information.
 
 #### My Device Handlers:
 
