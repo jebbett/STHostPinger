@@ -2,10 +2,6 @@
 
 **Using an EXE running on any PC - Ping any IP, host name or URL and pass this to a switch in SmartThings!**
 
- Want to see if your TV is on? Your computer has been turned on? Your server or  website is down? This App, Device and EXE combination can provide you a switch in ST.
- 
- *Pretty much my entire C# knowledge is working on this request, which is based on the Plex2SmartThings exe, if you have any improvements to the code please feel free to put in a pull request or just PM me the amnendments. I think I have solved any memory leak issues.
-
 **Code and Program Location:**
 https://github.com/jebbett/STHostPinger
 
@@ -59,19 +55,17 @@ B. Open the config.config file.
 
 C. In config/smartThingsEndpoints fill in your API token and add the APP ID to the endpoint urls from the previous section.
 
-  <!ENTITY accessToken "XXXXXX FROM SMARTTHINGS XXXXXXXXX">
-  <!ENTITY appId "XXXXXX FROM SMARTTHINGS XXXXXXXXX">
-  <!ENTITY ide "https://graph-eu01-euwest1.api.smartthings.com">
+  ENTITY accessToken "XXXXXX FROM SMARTTHINGS XXXXXXXXX"
+  ENTITY appId "XXXXXX FROM SMARTTHINGS XXXXXXXXX"
+  ENTITY ide "https://graph-eu01-euwest1.api.smartthings.com"
 
 D. Be sure to also check that your IDE URL matches the URL in config.config, if you have the URL from the app then this should be correct, if you were unable to get this from the app then you willl need to copy from IDE, it'll be something like "graph-na02-useast1.api.smartthings.com"
 
 E. Configure all of the IPs / Hosts or Addresses you want to ping.
-  <hostList>
-    <item HOST="google.com" />
-    <item HOST="192.168.1.1" />
-    <item HOST="SERVER1" />
-  </hostList>
 
+item HOST="google.com"
+item HOST="192.168.1.1"
+item HOST="SERVER1"
 
 G. The polling interval, timeout and debugging can also be configured to your liking or leave as the default values.
 
