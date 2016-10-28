@@ -2,6 +2,10 @@
 
 **Using an EXE running on any PC - Ping any IP, host name or URL and pass this to a switch in SmartThings!**
 
+ Want to see if your TV is on? Your computer has been turned on? Your server or  website is down? This App, Device and EXE combination can provide you a switch in ST.
+ 
+ *Pretty much my entire C# knowledge is working on this request, which is based on the Plex2SmartThings exe, if you have any improvements to the code please feel free to put in a pull request or just PM me the amnendments. I think I have solved any memory leak issues.
+
 **Code and Program Location:**
 https://github.com/jebbett/STHostPinger
 
