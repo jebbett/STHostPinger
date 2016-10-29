@@ -7,7 +7,7 @@ https://github.com/jebbett/STHostPinger
 
 ## Requirements
 
-**- STHostPinger.exe & config.config ** - Windows Application - config.config needs to be configured with details as described below and can be running on any PC connected to the internet.
+**- STHostPinger.exe & config.config** - Windows Application - config.config needs to be configured with details as described below and can be running on any PC connected to the internet.
 
 **- Host Pinger SmartApp** - This passes the output of the exe to the custom device types.
 
@@ -55,9 +55,9 @@ B. Open the config.config file.
 
 C. In config/smartThingsEndpoints fill in your API token and add the APP ID to the endpoint urls from the previous section.
 
-  ENTITY accessToken "XXXXXX FROM SMARTTHINGS XXXXXXXXX"
-  ENTITY appId "XXXXXX FROM SMARTTHINGS XXXXXXXXX"
-  ENTITY ide "https://graph-eu01-euwest1.api.smartthings.com"
+ENTITY accessToken "XXXXXX FROM SMARTTHINGS XXXXXXXXX"
+ENTITY appId "XXXXXX FROM SMARTTHINGS XXXXXXXXX"
+ENTITY ide "https://graph-eu01-euwest1.api.smartthings.com"
 
 D. Be sure to also check that your IDE URL matches the URL in config.config, if you have the URL from the app then this should be correct, if you were unable to get this from the app then you willl need to copy from IDE, it'll be something like "graph-na02-useast1.api.smartthings.com"
 

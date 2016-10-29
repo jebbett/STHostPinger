@@ -13,23 +13,27 @@ import groovy.json.JsonBuilder
  *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
+ *
+ * Icon By: Maxim Basinski: https://www.iconfinder.com/vasabii
  * 
  * VERSION CONTROL
  * ###############
  *
- *  v1.0 - Release Version
+ *	28/10/16	1.0		Release Version
+ *  29/10/16	1.1		Added child app and triggering of external switches
  *
  */
 
 definition(
-    name: "Host Pinger",
+    name: "Host Pinger${parent ? " - Child" : ""}",
     namespace: "jebbett",
     author: "Jake Tebbett",
     description: "Capture ping result events to control virtul switches",
     category: "My Apps",
-    iconUrl: "https://cdn1.iconfinder.com/data/icons/technology-and-hardware-2/200/vector_66_11-64.png",
-    iconX2Url: "https://cdn1.iconfinder.com/data/icons/technology-and-hardware-2/200/vector_66_11-64.png",
-    iconX3Url: "https://cdn1.iconfinder.com/data/icons/technology-and-hardware-2/200/vector_66_11-64.png",
+    iconUrl: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/icon.png",
+    iconX2Url: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/icon.png",
+    iconX3Url: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/icon.png",
+    parent: parent ? "jebbett.Host Pinger" : null,
     singleInstance: true,
     oauth: [displayName: "HostPingState", displayLink: ""])
 
@@ -46,11 +50,17 @@ def updated() {
 }
 
 def initialize() {
-    generateAccessToken()
-    logWriter("APP_ID: $app.id")
-    logWriter("ACCESS_TOKEN: $state.accessToken")
-    
-    if(state.lastEvent == null){state.lastEvent = "No event recieved, please ensure that config.config is setup correctly"}
+    if(parent){
+	    if(state.hostState == null){
+            state.hostState = "unknown"
+        }
+        app.updateLabel("${settings.appName} [${state.hostState}]")
+    }else{
+    	generateAccessToken()
+    	logWriter("APP_ID: $app.id")
+    	logWriter("ACCESS_TOKEN: $state.accessToken")
+    	if(state.lastEvent == null){state.lastEvent = "No event recieved, please ensure that config.config is setup correctly"}
+   	}
 }
 
 def generateAccessToken() {
@@ -68,6 +78,8 @@ def generateAccessToken() {
 }
 
 preferences {
+	page(name: "pageMain")
+    page(name: "pageChild")
 	page(name: "mainMenu")
     page(name: "lastEvt")
     page(name: "EndPointInfo")
@@ -75,16 +87,22 @@ preferences {
     page(name: "pageDevDetails")
     page(name: "pageDevDelete")
     page(name: "pageDevAdd")
+    page(name: "pageTrigger")
     
+}
+
+// MAIN PAGE
+def pageMain() {
+	parent ? pageChild() : mainMenu()
 }
 
 def mainMenu() {
 
     dynamicPage(name: "mainMenu", title: "Host Pinger SmartApp", install: true, uninstall: true, submitOnChange: true) {              
-       	//section() {
-        //	href(name: "pageDevice", title: "Host Ping Devices", required: false, page: "pageDevice", description: "create a virtual device here")
-    	//}
-        pageDevice()
+       	section() {
+        	href(name: "pageDevice", title: "Create & Manage Virtual Devices", required: false, page: "pageDevice", description: "")
+            href(name: "pageTrigger", title: "Devices To Be Triggered", required: false, page: "pageTrigger", description: "")
+    	}
         
 	    section(title: "ADVANCED") {
            	href(name: "LastEvent", title: "Events Recieved", required: false, page: "lastEvt", description: "")
@@ -93,84 +111,6 @@ def mainMenu() {
     	}
 	}
 }
-
-
-
-def pageDevice() {
-
-    //dynamicPage(name: "pageDevice", title: "Create Device", install: false, uninstall: false) {        
-
-
-	section() {
-        
-        def greenOrRed = ""
-        def i = 1 as int
-        
-        getSortedDevices().each { dev ->            
-
-        	if(dev.switchState?.value == null){greenOrRed = "https://cdn2.iconfinder.com/data/icons/function_icon_set/warning_48.png"}
-            else if(dev.switchState.value == "on"){greenOrRed = "https://cdn2.iconfinder.com/data/icons/function_icon_set/circle_green.png"}
-            else{greenOrRed = "https://cdn2.iconfinder.com/data/icons/function_icon_set/circle_red.png"}
-            
-        	href(name: "pageDevDetails$i", title:"$dev.label", description: "", params: [devi: dev.deviceNetworkId, devstate: dev.switchState?.value], page: "pageDevDetails", required: true, state: "complete", image: "$greenOrRed")
-            i++
-            }
-        }
-        section(title: "Please ensure that the custom device type is installed!"){
-        	href(name: "pageDevDetails", title:"Create New Device", description: "", params: [devi: false], page: "pageDevDetails", required: true, state: "complete", image: "https://cdn2.iconfinder.com/data/icons/function_icon_set/add_48.png")
-    	}
-	//}
-}
-
-private getSortedDevices() {
-	return getChildDevices().sort{it.displayName}
-}
-
-def pageDevDetails(params) {    
-    dynamicPage(name: "pageDevDetails", title: "Device Details", install: false, uninstall: false) {
-		if(params.devi){
-			section("Status") {                
-                if(params.devstate == null){paragraph("Device Status: No Status Recieved - Check config.config", required: false)}
-            	else if(params.devstate == "on"){paragraph("Device Status: Online", required: true, state: "complete")}
-            	else{paragraph("Device Status: Offline", required: true)}
-            }
-            section("DELETE") {
-            	href(name: "pageDevDelete", title:"DELETE DEVICE", description: "ONLY PRESS IF YOU ARE SURE!", params: [devi: "$params.devi"], page: "pageDevDelete", required: true, state: null, image: "https://cdn0.iconfinder.com/data/icons/round-ui-icons/128/close_red.png")
-        	}
-   		}else{
-       		section() {
-        		paragraph("Create a new Host Ping Device")
-                input "devName", type: "text", title: "IP Or Host Name:", required:false, submitOnChange: true
-            	href(name: "pageDevAdd", title:"Create Device", description: "", params: [devi: "$params.devi"], page: "pageDevAdd", required: true, state: null, image: "https://cdn0.iconfinder.com/data/icons/round-ui-icons/128/add_green.png")
-        	}
-		}    
-  	}   
-}
-
-
-def pageDevAdd(params) {
-	if(settings.devName){
-    	def DeviceID = "HostPingDev:"+settings.devName
-		def existingDevice = getChildDevice(DeviceID)
-		if(!existingDevice) {
-        	def newTrigger = addChildDevice("jebbett", "Host Ping Device", DeviceID, null, [name: "PING: ${settings.devName}", label: "PING: ${settings.devName}"])
-		}
-        pageDevice()
-	}else{
-    	dynamicPage(name: "pageDevAdd", title: "Device Details", install: false, uninstall: false) {        
-			section() {
-            	paragraph("Name not set")
-        	}
-		}
-	}
-}
-
-def pageDevDelete(params) {
-   	deleteChildDevice(params.devi)
-	pageDevice()
-}
-
-
 
 def lastEvt() {
 
@@ -198,55 +138,6 @@ def EndPointInfo() {
         }
     }
 }
-
-
-// These Methods Generate Json for you Info Only
-def appInfoJson() {
-	def configJson = new groovy.json.JsonOutput().toJson([
-    	appId:        app.id,
-    	accessToken:  state.accessToken,        
-    ])
-
-    def configString = new groovy.json.JsonOutput().prettyPrint(configJson)
-    render contentType: "text/plain", data: configString
-}
-
-
-mappings {
-  path("/statechanged/:command") 	{ action: [ GET: "OnCommandRecieved" ] }
-  path("/appinfo") 					{ action: [ GET: "appInfoJson"]   }
-}
-
-private def logWriter(value) {
-	if (debugLogging) {log.debug "${value}"}	
-}
-
-
-def OnCommandRecieved() {
-	def command = params.command
-    def host = params.ipadd
-    
-    logWriter("Event Recieved: ${command} ${host}")
-    StoreLastEvent(command, host)
-    
-    getChildDevices().each { dev ->
-    	if(dev.deviceNetworkId == "HostPingDev:${host}"){
-        	if(command == "online"){
-            	dev.on()
-            }else{
-            	dev.off()
-            }
-    	}
-    }
-    
-    return
-}
-
-def StoreLastEvent(command, host) {
-    // Update Entry
-    state.lastEvent = "${new Date(now()).format("dd MMM HH:mm", location.timeZone)} - ${host} [${command}]\n"+state.lastEvent
-}
-
 
 def trimmedLog(){
 	//defult to length of 20 entries if none set
@@ -281,4 +172,160 @@ public static int nthIndexOf(String source, String sought, int n) {
         if (index == -1) return -1;
     }
     return index;
+}
+
+
+
+
+//// TRIGGER CHILD APP
+
+def pageTrigger() {
+	dynamicPage(name: "pageTrigger", title: "Triggers", install: true, uninstall: false) {
+		section() {
+    		app(name:"HostPingerChild", title:"Add Trigger..", appName: "Host Pinger", namespace: "jebbett", multiple: true, uninstall: true, image: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/add_48.png")
+        }
+  	}
+}
+
+
+def pageChild() {
+	dynamicPage(name: "pageChild", title: "Trigger Details", install: true, uninstall: true) {
+		section() {
+            input "appName", type: "text", title: "Name", required:true, submitOnChange: true
+            input "hostName", type: "text", title: "IP, Host or URL", required:false
+            input "hostSwitch", "capability.switch", title:"Turn This Switch On When Online", multiple: true, required: false
+		}
+  	}
+}
+
+
+def AppCommandRecieved(command, host){
+
+	if (settings?.hostName == host){
+    	if(command == "online"){
+            hostSwitch?.on()
+        }else{
+            hostSwitch?.off()
+        }    	
+        state.hostState = command
+    	app.updateLabel("${appName} [${command}]")
+    }
+}
+
+//// VIRTUAL DEVICE
+
+def pageDevice() {
+
+    dynamicPage(name: "pageDevice", title: "Create Device", install: false, uninstall: false) {        
+	section() {
+        
+        def greenOrRed = ""
+        def i = 1 as int
+        
+        getSortedDevices().each { dev ->            
+
+        	if(dev.switchState?.value == null){greenOrRed = "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/unknown.png"}
+            else if(dev.switchState.value == "on"){greenOrRed = "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/circle_green.png"}
+            else{greenOrRed = "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/circle_red.png"}
+            
+        	href(name: "pageDevDetails$i", title:"$dev.label", description: "", params: [devi: dev.deviceNetworkId, devstate: dev.switchState?.value], page: "pageDevDetails", required: true, state: "complete", image: "$greenOrRed")
+            i++
+            }
+        }
+        section(title: "Please ensure that the custom device type is installed!"){
+        	href(name: "pageDevDetails", title:"Create New Device", description: "", params: [devi: false], page: "pageDevDetails", required: true, state: "complete", image: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/add_48.png")
+    	}
+	}
+}
+
+private getSortedDevices() {
+	return getChildDevices().sort{it.displayName}
+}
+
+def pageDevDetails(params) {    
+    dynamicPage(name: "pageDevDetails", title: "Device Details", install: false, uninstall: false) {
+		if(params.devi){
+			section("Status") {                
+                if(params.devstate == null){paragraph("Device Status: No Status Recieved - Check config.config", required: false)}
+            	else if(params.devstate == "on"){paragraph("Device Status: Online", required: true, state: "complete")}
+            	else{paragraph("Device Status: Offline", required: true)}
+            }
+            section("DELETE") {
+            	href(name: "pageDevDelete", title:"DELETE DEVICE", description: "ONLY PRESS IF YOU ARE SURE!", params: [devi: "$params.devi"], page: "pageDevDelete", required: true, state: null, image: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/delete_48.png")
+        	}
+   		}else{
+       		section() {
+        		paragraph("Create a new Host Ping Device")
+                input "devName", type: "text", title: "IP Or Host Name:", required:false, submitOnChange: true
+            	href(name: "pageDevAdd", title:"Create Device", description: "", params: [devi: "$params.devi"], page: "pageDevAdd", required: true, state: null, image: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/add_48.png")
+        	}
+		}    
+  	}   
+}
+
+
+def pageDevAdd(params) {
+	if(settings.devName){
+    	def DeviceID = "HostPingDev:"+settings.devName
+		def existingDevice = getChildDevice(DeviceID)
+		if(!existingDevice) {
+        	def newTrigger = addChildDevice("jebbett", "Host Ping Device", DeviceID, null, [name: "PING: ${settings.devName}", label: "PING: ${settings.devName}"])
+		}
+        pageDevice()
+	}else{
+    	dynamicPage(name: "pageDevAdd", title: "Device Details", install: false, uninstall: false) {        
+			section() {
+            	paragraph("Name not set")
+        	}
+		}
+	}
+}
+
+def pageDevDelete(params) {
+   	deleteChildDevice(params.devi)
+	pageDevice()
+}
+
+
+//// EVENT HANDLING
+
+mappings {
+  path("/statechanged/:command") 	{ action: [ GET: "OnCommandRecieved" ] }
+}
+
+def OnCommandRecieved() {
+	def command = params.command
+    def host = params.ipadd
+    
+    logWriter("Event Recieved: ${command} ${host}")
+    StoreLastEvent(command, host)
+    
+    getChildDevices().each { dev ->
+    	if(dev.deviceNetworkId == "HostPingDev:${host}"){
+        	if(command == "online"){
+            	dev.on()
+            }else{
+            	dev.off()
+            }
+    	}
+    }
+    
+    childApps.each { child ->
+    	child.AppCommandRecieved(command, host)
+    }
+    
+    return
+}
+
+
+def StoreLastEvent(command, host) {
+    // Update Entry
+    state.lastEvent = "${new Date(now()).format("dd MMM HH:mm", location.timeZone)} - ${host} [${command}]\n"+state.lastEvent
+}
+
+
+////GENERIC
+
+private def logWriter(value) {
+	if (debugLogging) {log.debug "${value}"}	
 }

@@ -4,3 +4,9 @@ E:\System\Desktop\Code\STHostPinger\bin\Debug\STHostPinger.exe
 E:\System\Desktop\Code\STHostPinger\bin\Debug\STHostPinger.pdb
 E:\System\Desktop\Code\STHostPinger\obj\Debug\STHostPinger.exe
 E:\System\Desktop\Code\STHostPinger\obj\Debug\STHostPinger.pdb
+E:\System\JakeT Documents\GitHub\STHostPinger\Code\STHostPinger\bin\Debug\config.config
+E:\System\JakeT Documents\GitHub\STHostPinger\Code\STHostPinger\bin\Debug\STHostPinger.exe
+E:\System\JakeT Documents\GitHub\STHostPinger\Code\STHostPinger\bin\Debug\STHostPinger.pdb
+E:\System\JakeT Documents\GitHub\STHostPinger\Code\STHostPinger\obj\Debug\STHostPinger.csprojResolveAssemblyReference.cache
+E:\System\JakeT Documents\GitHub\STHostPinger\Code\STHostPinger\obj\Debug\STHostPinger.exe
+E:\System\JakeT Documents\GitHub\STHostPinger\Code\STHostPinger\obj\Debug\STHostPinger.pdb
