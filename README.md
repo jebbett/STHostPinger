@@ -7,17 +7,23 @@ https://github.com/jebbett/STHostPinger
 
 ## Requirements
 
-**- STHostPinger.exe & config.config** - Windows Application - config.config needs to be configured with details as described below and can be running on any PC connected to the internet.
+**- STHostPinger.exe & config.config** - Application (Windows / Mac&Linux via Mono) - config.config needs to be configured with details as described below and can be running on any PC connected to the internet.
 
 **- Host Pinger SmartApp** - This passes the output of the exe to the custom device types.
 
-**- Host Ping device Type** - This device type revieves the online/offline event and translates this in to an on/off switch.
+**- Host Ping Device Type (optional)** - This device type revieves the online/offline event and translates this in to an on/off switch or presence sensor.
+
+## Version Control
+
+ * 28/10/16 - 1.0 - Release Version
+ * 29/10/16 - 1.1 - Added child app and triggering of external switches
+ * 30/10/16 - 1.2 - Removed direct triggering of child devices, Child app now includes delay on 'Offline'
 
 ## How To Install:
 
 ### 1. Install the Smart App and Custom Device Type
 
-Go to your IDE:
+Go to your IDE, then...
 
 #### My SmartApps:
 
@@ -34,9 +40,9 @@ E. Enable OAuth in IDE by going in to IDE > My Smart Apps > [App Name] > App Set
 F. Get the Token and API Endpoint values via one of the below methods:
 
 * EASY OPTION: Enable debugging, open live logging in IDE and then open the app again and press done and values will be returned in Live Logging.
-* Open the SmartApp and click API Information.
+* Open the SmartApp and click API Information (this will involve manually typing the codes)
 
-#### My Device Handlers:
+#### My Device Handlers (optional):
 
 A. Create New Device Handler
 
@@ -48,6 +54,8 @@ D. Save and publish the device for yourself.
 
 
 ### 2. Configure STHostPinger.exe & config.config
+
+(Mac and Linux users can launch this exe by downloading Mono from the Mono-Project and running "mono STHostPinger.exe")
 
 A. Download the exe and config.config file. 
 

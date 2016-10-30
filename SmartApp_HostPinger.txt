@@ -1,5 +1,3 @@
-import groovy.json.JsonBuilder
-
 /**
  *  Host Pinger - SmartThings
  *
@@ -21,6 +19,7 @@ import groovy.json.JsonBuilder
  *
  *	28/10/16	1.0		Release Version
  *  29/10/16	1.1		Added child app and triggering of external switches
+ *	30/10/16	1.2		Removed direct triggering of child devices, Child app now includes delay on 'Offline'
  *
  */
 
@@ -98,12 +97,13 @@ def pageMain() {
 
 def mainMenu() {
 
-    dynamicPage(name: "mainMenu", title: "Host Pinger SmartApp", install: true, uninstall: true, submitOnChange: true) {              
-       	section() {
-        	href(name: "pageDevice", title: "Create & Manage Virtual Devices", required: false, page: "pageDevice", description: "")
-            href(name: "pageTrigger", title: "Devices To Be Triggered", required: false, page: "pageTrigger", description: "")
+    dynamicPage(name: "mainMenu", title: "", install: true, uninstall: true, submitOnChange: true) {              
+       	section("Host Setup & Triggering") {
+            href(name: "pageTrigger", title: "Hosts and Triggers", required: false, page: "pageTrigger", description: "")
     	}
-        
+        section("Virtual Devices (optional)"){
+        href(name: "pageDevice", title: "Create & Manage Virtual Devices", required: false, page: "pageDevice", description: "")
+        }
 	    section(title: "ADVANCED") {
            	href(name: "LastEvent", title: "Events Recieved", required: false, page: "lastEvt", description: "")
            	href(name: "Setup Details", title: "Endpoint Setup Details", required: false, page: "EndPointInfo", description: "")
@@ -193,7 +193,9 @@ def pageChild() {
 		section() {
             input "appName", type: "text", title: "Name", required:true, submitOnChange: true
             input "hostName", type: "text", title: "IP, Host or URL", required:false
-            input "hostSwitch", "capability.switch", title:"Turn This Switch On When Online", multiple: true, required: false
+            input "hostSwitch", "capability.switch", title:"Turn This Switch On/Off With Status", multiple: true, required: false
+            input "hostDelay", type: "number", title: "Delay going offline (seconds)", required:true, defaultValue: 0
+            paragraph "Offline delay can help to avoid a false negative or where a device briefly disconnects from the network, this delay should either be 0 to report actual results or should exceed your polling interval to handle errors"
 		}
   	}
 }
@@ -204,12 +206,25 @@ def AppCommandRecieved(command, host){
 	if (settings?.hostName == host){
     	if(command == "online"){
             hostSwitch?.on()
+            unschedule()
+            logWriter("Is Online")
         }else{
-            hostSwitch?.off()
+            if (settings?.hostDelay == "0"){
+            	commandOffline()
+            }else{
+            	def theDelay = settings.hostDelay as int
+            	runIn(theDelay, commandOffline)
+                logWriter("Delayed Off Line Request Recieved")
+            }
         }    	
         state.hostState = command
     	app.updateLabel("${appName} [${command}]")
     }
+}
+
+def commandOffline(){
+    hostSwitch?.off()
+    logWriter("Is Offline")
 }
 
 //// VIRTUAL DEVICE
@@ -256,7 +271,7 @@ def pageDevDetails(params) {
    		}else{
        		section() {
         		paragraph("Create a new Host Ping Device")
-                input "devName", type: "text", title: "IP Or Host Name:", required:false, submitOnChange: true
+                input "devName", type: "text", title: "Name", required:false, submitOnChange: true
             	href(name: "pageDevAdd", title:"Create Device", description: "", params: [devi: "$params.devi"], page: "pageDevAdd", required: true, state: null, image: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/add_48.png")
         	}
 		}    
@@ -300,15 +315,16 @@ def OnCommandRecieved() {
     logWriter("Event Recieved: ${command} ${host}")
     StoreLastEvent(command, host)
     
-    getChildDevices().each { dev ->
-    	if(dev.deviceNetworkId == "HostPingDev:${host}"){
-        	if(command == "online"){
-            	dev.on()
-            }else{
-            	dev.off()
-            }
-    	}
-    }
+    // Direct triggering of child devices
+    //getChildDevices().each { dev ->
+    //	if(dev.deviceNetworkId == "HostPingDev:${host}"){
+    //    	if(command == "online"){
+    //        	dev.on()
+    //        }else{
+    //        	dev.off()
+    //        }
+    //	}
+    //}
     
     childApps.each { child ->
     	child.AppCommandRecieved(command, host)
@@ -326,6 +342,11 @@ def StoreLastEvent(command, host) {
 
 ////GENERIC
 
+// Debug Logging
 private def logWriter(value) {
-	if (debugLogging) {log.debug "${value}"}	
+	if(parent){
+    	if(parent.debugLogging) {log.debug "${app.label} >> ${value}"}
+    }else{
+		if(debugLogging) {log.debug "${app.label} >> ${value}"}
+    }
 }
