@@ -1,6 +1,6 @@
 # SmartThings Host Pinger
 
-**Using an EXE running on any PC - Ping any IP, host name or URL and pass this to a switch in SmartThings!**
+**Using an EXE running on any computer (Windows, Mac or Linux) - Ping any IP, host name or URL and pass this to a switch in SmartThings!**
 
 **Code and Program Location:**
 https://github.com/jebbett/STHostPinger
