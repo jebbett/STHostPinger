@@ -83,6 +83,10 @@ You can now run the exe and and this should push the updates to your ST Hub via 
 
 If anything obvious isn't working you will recieve errors in the console, you can enable extra debugging by setting to 2 in config.config, or have no updates by setting to 0. 
 
+To run this on mono you will need to download mono for Mac, or for Linux install "mono-complete", the standard runtime doesn't contain everything you need.
+
+On Linux you can run "mono STHostPinger.exe" or "mono STHostPinger.exe &" to run in the background ("jobs" will show running instances and "kill $1" will kill process 1)
+
 
 ### 4. Configure the Smart App
 
