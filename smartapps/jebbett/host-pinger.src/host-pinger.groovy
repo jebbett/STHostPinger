@@ -20,6 +20,7 @@
  *	28/10/16	1.0		Release Version
  *  29/10/16	1.1		Added child app and triggering of external switches
  *	30/10/16	1.2		Removed direct triggering of child devices, Child app now includes delay on 'Offline'
+ *	01/12/16	1.3		Untested fix for null value logging error
  *
  */
 
@@ -139,10 +140,10 @@ def EndPointInfo() {
     }
 }
 
-def updateLog(command, name, int length, event){
+def updateLog(command, name, length, event){
 
     def logName = "log$name" as String									// Add log prefix
-    if(length == 0){state.remove(logName); return "State Cleared"}		// If length set to 0, delete state
+    if(length == null || length == 0){state.remove(logName); return "No Data"}		// If length set to 0, delete state
 	if(!state."$logName"){state."$logName" = []}						// If list state new, create blank list
 	def tempList = state."$logName"										// Create a temp List
 	
