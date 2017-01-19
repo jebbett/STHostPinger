@@ -21,6 +21,7 @@
  *  29/10/16	1.1		Added child app and triggering of external switches
  *	30/10/16	1.2		Removed direct triggering of child devices, Child app now includes delay on 'Offline'
  *	01/12/16	1.3		Untested fix for null value logging error
+ * 	19/01/17	1.4		Added setup instrucions in app and cosmetic changes
  *
  */
 
@@ -99,11 +100,15 @@ def pageMain() {
 def mainMenu() {
 
     dynamicPage(name: "mainMenu", title: "", install: true, uninstall: true, submitOnChange: true) {              
-       	section("Host Setup & Triggering") {
-            href(name: "pageTrigger", title: "Hosts and Triggers", required: false, page: "pageTrigger", description: "")
+       	section("Host Setup") {
+            href(name: "pageTrigger", title: "Hosts", required: false, page: "pageTrigger", description: "")
     	}
         section("Virtual Devices (optional)"){
-        href(name: "pageDevice", title: "Create & Manage Virtual Devices", required: false, page: "pageDevice", description: "")
+        	href(name: "pageDevice", title: "Create & Manage Virtual Devices", required: false, page: "pageDevice", description: "")
+        }
+        section("Instructions"){
+            paragraph "1. Either create a virtual device in this app using a link above or decide to control an existing switch"
+            paragraph "2. Add a new host under the hosts section and then set the trigger as either the virtual device you created or an existing switch"
         }
 	    section(title: "ADVANCED") {
            	href(name: "LastEvent", title: "Events Recieved", required: false, page: "lastEvt", description: "")
@@ -176,20 +181,20 @@ def updateLog(command, name, length, event){
 //// TRIGGER CHILD APP
 
 def pageTrigger() {
-	dynamicPage(name: "pageTrigger", title: "Triggers", install: true, uninstall: false) {
+	dynamicPage(name: "pageTrigger", title: "Hosts", install: true, uninstall: false) {
 		section() {
-    		app(name:"HostPingerChild", title:"Add Trigger..", appName: "Host Pinger", namespace: "jebbett", multiple: true, uninstall: true, image: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/add_48.png")
+    		app(name:"HostPingerChild", title:"Add Host..", appName: "Host Pinger", namespace: "jebbett", multiple: true, uninstall: true, image: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/add_48.png")
         }
   	}
 }
 
 
 def pageChild() {
-	dynamicPage(name: "pageChild", title: "Trigger Details", install: true, uninstall: true) {
+	dynamicPage(name: "pageChild", title: "Host Details", install: true, uninstall: true) {
 		section() {
             input "appName", type: "text", title: "Name", required:true, submitOnChange: true
             input "hostName", type: "text", title: "IP, Host or URL", required:false
-            input "hostSwitch", "capability.switch", title:"Turn This Switch On/Off With Status", multiple: true, required: false
+            input "hostSwitch", "capability.switch", title:"Turn This Device On/Off With Status", multiple: true, required: false
             input "hostDelay", type: "number", title: "Delay going offline (seconds)", required:true, defaultValue: 0
             paragraph "Offline delay can help to avoid a false negative or where a device briefly disconnects from the network, this delay should either be 0 to report actual results or should exceed your polling interval to handle errors"
 		}
