@@ -22,6 +22,7 @@
  *	30/10/16	1.2		Removed direct triggering of child devices, Child app now includes delay on 'Offline'
  *	01/12/16	1.3		Untested fix for null value logging error
  * 	19/01/17	1.4		Added setup instrucions in app and cosmetic changes
+ *	24/02/17	1.5		Added exact config details for EXE in to live logging
  *
  */
 
@@ -58,8 +59,10 @@ def initialize() {
         app.updateLabel("${settings.appName} [${state.hostState}]")
     }else{
     	generateAccessToken()
-    	logWriter("APP_ID: $app.id")
-    	logWriter("ACCESS_TOKEN: $state.accessToken")
+    	logWriter("URL FOR USE IN PLEX2SMARTTHINGS EXE:\n"+
+        		"<!ENTITY accessToken '${state.accessToken}'>\n"+
+				"<!ENTITY appId '${app.id}'>\n"+
+				"<!ENTITY ide '${getApiServerUrl()}'>")
     	if(state.lastEvent == null){state.lastEvent = "No event recieved, please ensure that config.config is setup correctly"}
    	}
 }
