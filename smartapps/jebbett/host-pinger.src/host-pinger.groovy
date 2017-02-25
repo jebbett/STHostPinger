@@ -23,6 +23,7 @@
  *	01/12/16	1.3		Untested fix for null value logging error
  * 	19/01/17	1.4		Added setup instrucions in app and cosmetic changes
  *	24/02/17	1.5		Added exact config details for EXE in to live logging
+ *	25/02/17	1.6		Fixed bug in last event logging
  *
  */
 
@@ -126,7 +127,7 @@ def lastEvt() {
     dynamicPage(name: "lastEvt", title: "Last Event", install: false, uninstall: false) {        
         section(title: "Details of Last Event Recieved") {
             input "evtLogNum", "number", title: "Number Of Rows To Log", required: true, defaultValue: 20, submitOnChange: false
-        	paragraph "${updateLog("get", "Status", settings?.evtLogNum, null)}"
+        	paragraph "${updateLog("get", "Status", settings?.evtLogNum ?:0, null)}"
             logWriter(updateLog("get", "Status", settings?.evtLogNum, null))
         }
     }
@@ -151,7 +152,7 @@ def EndPointInfo() {
 def updateLog(command, name, length, event){
 
     def logName = "log$name" as String									// Add log prefix
-    if(length == null || length == 0){state.remove(logName); return "No Data"}		// If length set to 0, delete state
+    if(settings?.length == null || length == 0){state.remove(logName); return "No Data"}		// If length set to 0, delete state
 	if(!state."$logName"){state."$logName" = []}						// If list state new, create blank list
 	def tempList = state."$logName"										// Create a temp List
 	
