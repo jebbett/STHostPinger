@@ -24,6 +24,7 @@
  * 	19/01/17	1.4		Added setup instrucions in app and cosmetic changes
  *	24/02/17	1.5		Added exact config details for EXE in to live logging
  *	25/02/17	1.6		Fixed bug in last event logging
+ *	19/07/17	1.7		Fixed another bug in event logging
  *
  */
 
@@ -151,8 +152,11 @@ def EndPointInfo() {
 
 def updateLog(command, name, length, event){
 
+	//updateLog("set", "Status", settings?.evtLogNum, "${host} [${command}]")
+
     def logName = "log$name" as String									// Add log prefix
-    if(settings?.length == null || length == 0){state.remove(logName); return "No Data"}		// If length set to 0, delete state
+    length = length ?: 20
+    if(length == null || length == 0){state.remove(logName); return "No Data"}		// If length set to 0, delete state
 	if(!state."$logName"){state."$logName" = []}						// If list state new, create blank list
 	def tempList = state."$logName"										// Create a temp List
 	
