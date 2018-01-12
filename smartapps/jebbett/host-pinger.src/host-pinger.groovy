@@ -26,6 +26,7 @@
  *	25/02/17	1.6		Fixed bug in last event logging
  *	19/07/17	1.7		Fixed another bug in event logging
  *	23/07/17	1.8		Fixed the bugs from the previous two releases and hopefully tested it this time!
+ *	12/01/18	1.9		Fixed error when creating new device
  *
  */
 
@@ -251,12 +252,12 @@ def pageDevice() {
             else if(dev.switchState.value == "on"){greenOrRed = "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/circle_green.png"}
             else{greenOrRed = "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/circle_red.png"}
             
-        	href(name: "pageDevDetails$i", title:"$dev.label", description: "", params: [devi: dev.deviceNetworkId, devstate: dev.switchState?.value], page: "pageDevDetails", required: true, state: "complete", image: "$greenOrRed")
+        	href(name: "pageDevDetails$i", title:"$dev.label", description: "", params: [devi: dev.deviceNetworkId, devstate: dev.switchState?.value], page: "pageDevDetails", required: false, state: "complete", image: "$greenOrRed")
             i++
             }
         }
         section(title: "Please ensure that the custom device type is installed!"){
-        	href(name: "pageDevDetails", title:"Create New Device", description: "", params: [devi: false], page: "pageDevDetails", required: true, state: "complete", image: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/add_48.png")
+        	href(name: "pageDevDetails", title:"Create New Device", description: "", params: [devi: false], page: "pageDevDetails", required: false, state: "complete", image: "https://raw.githubusercontent.com/jebbett/STHostPinger/master/icons/add_48.png")
     	}
 	}
 }
