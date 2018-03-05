@@ -63,7 +63,7 @@ def initialize() {
         app.updateLabel("${settings.appName} [${state.hostState}]")
     }else{
     	generateAccessToken()
-    	logWriter("URL FOR USE IN PLEX2SMARTTHINGS EXE:\n"+
+    	logWriter("URL FOR USE IN HOSTPINGER EXE:\n"+
         		"<!ENTITY accessToken '${state.accessToken}'>\n"+
 				"<!ENTITY appId '${app.id}'>\n"+
 				"<!ENTITY ide '${getApiServerUrl()}'>")
