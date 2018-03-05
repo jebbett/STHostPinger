@@ -21,6 +21,7 @@ namespace jebbett
                     using ( Ping pinger = new Ping()) { 
                         PingReply reply = pinger.Send(element, Config.TimeOut);
                         bool pingable = reply.Status == IPStatus.Success;
+                        
                     
                         if (pingable)
                         {
@@ -28,11 +29,15 @@ namespace jebbett
                                 if (Program.DebugLevel >= 1)
                                 {
                                     Console.ForegroundColor = ConsoleColor.Green;
-                                    Console.WriteLine(DateTime.Now.ToString("dd-MMM-yy hh:mm") + "  [ONLINE]       " + element);
+                                    Console.WriteLine(DateTime.Now.ToString("dd-MMM-yy HH:mm") + "  [ONLINE]       " + element);
                                 }
-                                ActiveClients.Add(element);
-                                InActiveClients.Remove(element);
-                                CreateEndpointUrl(element, true); 
+                                if(CreateEndpointUrl(element, true))
+                                {
+                                    ActiveClients.Add(element);
+                                    InActiveClients.Remove(element);
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("Successfully sent to SmartThings");
+                                }
                             }
                         }
                         else
@@ -42,23 +47,31 @@ namespace jebbett
                                 if (Program.DebugLevel >= 1)
                                 {
                                     Console.ForegroundColor = ConsoleColor.Yellow;
-                                    Console.WriteLine(DateTime.Now.ToString("dd-MMM-yy hh:mm") + "  [WENT OFFLINE] " + element);
+                                    Console.WriteLine(DateTime.Now.ToString("dd-MMM-yy HH:mm") + "  [WENT OFFLINE] " + element);
                                     Console.ForegroundColor = ConsoleColor.Green;
                                 }
-                                ActiveClients.Remove(element);
-                                InActiveClients.Add(element);
-                                CreateEndpointUrl(element, false);
+                                if (CreateEndpointUrl(element, false))
+                                {
+                                    ActiveClients.Remove(element);
+                                    InActiveClients.Add(element);
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("Successfully sent to SmartThings");
+                                }
                             }
                             else if (!InActiveClients.Contains(element))
                             {
                                 if (Program.DebugLevel >= 1)
                                 {
                                     Console.ForegroundColor = ConsoleColor.Red;
-                                    Console.WriteLine(DateTime.Now.ToString("dd-MMM-yy hh:mm") + "  [OFFLINE]      " + element);
+                                    Console.WriteLine(DateTime.Now.ToString("dd-MMM-yy HH:mm") + "  [OFFLINE]      " + element);
                                     Console.ForegroundColor = ConsoleColor.Green;
                                 }
-                                InActiveClients.Add(element);
-                                CreateEndpointUrl(element, false);
+                                if (CreateEndpointUrl(element, false))
+                                {
+                                    InActiveClients.Add(element);
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.WriteLine("Successfully sent to SmartThings");
+                                }
                             }
                         }
                     }
@@ -72,7 +85,7 @@ namespace jebbett
             return;
         }
 
-        private void CreateEndpointUrl(string IPAdd, bool State)
+        public static bool CreateEndpointUrl(string IPAdd, bool State)
         {
             string endpoint = "";
             if (State == true) endpoint = Config.EndpointUrl_Online;
@@ -85,12 +98,12 @@ namespace jebbett
             //Add the GET parameters to the request
             endpoint += "access_token=" + HttpUtility.UrlEncode(Config.Endpoint_AccessToken);
             endpoint += "&ipadd=" + HttpUtility.UrlEncode(IPAdd);
+            return SendGetRequest(endpoint);
 
-            SendGetRequest(endpoint);
         }
 
 
-        public static string SendGetRequest(string url)
+        public static bool SendGetRequest(string url)
         {
             
             try
@@ -100,17 +113,17 @@ namespace jebbett
                     if (Program.DebugLevel >= 2) Console.WriteLine("SendGetRequest: " + url);
                     string result = client.DownloadString(url);
                     if (Program.DebugLevel == 2) Console.WriteLine("Result: " + result);
-                    return result;
+                    return true;
                 }
             }
             catch (Exception ex)
             {
                 if (Program.DebugLevel >= 1)
                 {
-                    Console.WriteLine("Failed to SendGetRequest: " + ex.Message);
-
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Failed to send request to SmartThings: " + ex.Message + " [RETRYING..]");
                 }
-                return null;
+                return false;
             }
         }
 
