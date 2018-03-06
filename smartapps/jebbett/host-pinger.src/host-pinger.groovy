@@ -27,6 +27,7 @@
  *	19/07/17	1.7		Fixed another bug in event logging
  *	23/07/17	1.8		Fixed the bugs from the previous two releases and hopefully tested it this time!
  *	12/01/18	1.9		Fixed error when creating new device
+ *	06/03/18	1.10	Fixed spelling of 'received' throughout
  *
  */
 
@@ -67,7 +68,7 @@ def initialize() {
         		"<!ENTITY accessToken '${state.accessToken}'>\n"+
 				"<!ENTITY appId '${app.id}'>\n"+
 				"<!ENTITY ide '${getApiServerUrl()}'>")
-    	if(state.lastEvent == null){state.lastEvent = "No event recieved, please ensure that config.config is setup correctly"}
+    	if(state.lastEvent == null){state.lastEvent = "No event received, please ensure that config.config is setup correctly"}
    	}
 }
 
@@ -118,7 +119,7 @@ def mainMenu() {
             paragraph "2. Add a new host under the hosts section and then set the trigger as either the virtual device you created or an existing switch"
         }
 	    section(title: "ADVANCED") {
-           	href(name: "LastEvent", title: "Events Recieved", required: false, page: "lastEvt", description: "")
+           	href(name: "LastEvent", title: "Events Received", required: false, page: "lastEvt", description: "")
            	href(name: "Setup Details", title: "Endpoint Setup Details", required: false, page: "EndPointInfo", description: "")
             input "debugLogging", "bool", title: "Debug Logging", required: false, defaultValue: false, submitOnChange: true
     	}
@@ -128,7 +129,7 @@ def mainMenu() {
 def lastEvt() {
 
     dynamicPage(name: "lastEvt", title: "Last Event", install: false, uninstall: false) {        
-        section(title: "Details of Last Event Recieved") {
+        section(title: "Details of Last Event Received") {
             input "evtLogNum", "number", title: "Number Of Rows To Log", required: true, defaultValue: 20, submitOnChange: false
         	paragraph "${updateLog("get", "Status", settings?.evtLogNum ?:0, null)}"
             logWriter(updateLog("get", "Status", settings?.evtLogNum, null))
@@ -210,7 +211,7 @@ def pageChild() {
 }
 
 
-def AppCommandRecieved(command, host){
+def AppCommandReceived(command, host){
 
 	if (settings?.hostName == host){
     	if(command == "online"){
@@ -223,7 +224,7 @@ def AppCommandRecieved(command, host){
             }else{
             	def theDelay = settings.hostDelay as int
             	runIn(theDelay, commandOffline)
-                logWriter("Delayed Off Line Request Recieved")
+                logWriter("Delayed Off Line Request Received")
             }
         }    	
         state.hostState = command
@@ -270,7 +271,7 @@ def pageDevDetails(params) {
     dynamicPage(name: "pageDevDetails", title: "Device Details", install: false, uninstall: false) {
 		if(params.devi){
 			section("Status") {                
-                if(params.devstate == null){paragraph("Device Status: No Status Recieved - Check config.config", required: false)}
+                if(params.devstate == null){paragraph("Device Status: No Status Received - Check config.config", required: false)}
             	else if(params.devstate == "on"){paragraph("Device Status: Online", required: true, state: "complete")}
             	else{paragraph("Device Status: Offline", required: true)}
             }
@@ -314,18 +315,18 @@ def pageDevDelete(params) {
 //// EVENT HANDLING
 
 mappings {
-  path("/statechanged/:command") 	{ action: [ GET: "OnCommandRecieved" ] }
+  path("/statechanged/:command") 	{ action: [ GET: "OnCommandReceived" ] }
 }
 
-def OnCommandRecieved() {
+def OnCommandReceived() {
 	def command = params.command
     def host = params.ipadd
     
-    logWriter("Event Recieved: ${command} ${host}")
+    logWriter("Event Received: ${command} ${host}")
     updateLog("set", "Status", settings?.evtLogNum, "${host} [${command}]")
         
     childApps.each { child ->
-    	child.AppCommandRecieved(command, host)
+    	child.AppCommandReceived(command, host)
     }
     
     return
