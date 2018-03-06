@@ -1,6 +1,8 @@
 /*
- * HostPinger ESP8266 Edition V1.0
+ * HostPinger ESP8266 Edition V1.1
  * Created By Jake Tebbett (jebbett) - Copyright 2018
+ * ## VERSION CONTROL ##
+ * v1.1 - Set wifi to station mode
  */
 
 #include <ESP8266WiFi.h>
@@ -29,6 +31,7 @@ void setup() {
   // We start by connecting to a WiFi network
   Serial.println();
   Serial.println("Connecting to WiFi");
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   
   while (WiFi.status() != WL_CONNECTED) {
