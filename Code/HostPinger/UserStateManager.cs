@@ -23,29 +23,24 @@ namespace jebbett
                         bool pingable = reply.Status == IPStatus.Success;
                         
                     
-                        if (pingable)
-                        {
-                            if (!ActiveClients.Contains(element)) {
-                                if (Program.DebugLevel >= 1)
-                                {
+                        if (pingable){
+                            if (!ActiveClients.Contains(element) || Config.HeartBeat) {
+                                if (Program.DebugLevel >= 1){
                                     Console.ForegroundColor = ConsoleColor.Green;
                                     Console.WriteLine(DateTime.Now.ToString("dd-MMM-yy HH:mm") + "  [ONLINE]       " + element);
                                 }
-                                if(CreateEndpointUrl(element, true))
-                                {
+                                if(CreateEndpointUrl(element, true)){
                                     ActiveClients.Add(element);
                                     InActiveClients.Remove(element);
                                     Console.ForegroundColor = ConsoleColor.Green;
-                                    Console.WriteLine("Successfully sent to SmartThings");
+                                    Console.WriteLine("Successfully sent to App");
                                 }
                             }
                         }
                         else
                         {
-                        
                             if (ActiveClients.Contains(element)) {
-                                if (Program.DebugLevel >= 1)
-                                {
+                                if (Program.DebugLevel >= 1){
                                     Console.ForegroundColor = ConsoleColor.Yellow;
                                     Console.WriteLine(DateTime.Now.ToString("dd-MMM-yy HH:mm") + "  [WENT OFFLINE] " + element);
                                     Console.ForegroundColor = ConsoleColor.Green;
@@ -55,22 +50,20 @@ namespace jebbett
                                     ActiveClients.Remove(element);
                                     InActiveClients.Add(element);
                                     Console.ForegroundColor = ConsoleColor.Green;
-                                    Console.WriteLine("Successfully sent to SmartThings");
+                                    Console.WriteLine("Successfully sent to App");
                                 }
                             }
-                            else if (!InActiveClients.Contains(element))
+                            else if (!InActiveClients.Contains(element) || Config.HeartBeat)
                             {
-                                if (Program.DebugLevel >= 1)
-                                {
+                                if (Program.DebugLevel >= 1){
                                     Console.ForegroundColor = ConsoleColor.Red;
                                     Console.WriteLine(DateTime.Now.ToString("dd-MMM-yy HH:mm") + "  [OFFLINE]      " + element);
                                     Console.ForegroundColor = ConsoleColor.Green;
                                 }
-                                if (CreateEndpointUrl(element, false))
-                                {
+                                if (CreateEndpointUrl(element, false)){
                                     InActiveClients.Add(element);
                                     Console.ForegroundColor = ConsoleColor.Green;
-                                    Console.WriteLine("Successfully sent to SmartThings");
+                                    Console.WriteLine("Successfully sent to App");
                                 }
                             }
                         }
@@ -121,7 +114,7 @@ namespace jebbett
                 if (Program.DebugLevel >= 1)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Failed to send request to SmartThings: " + ex.Message + " [RETRYING..]");
+                    Console.WriteLine("Failed to send request to App: " + ex.Message + " [RETRYING..]");
                 }
                 return false;
             }

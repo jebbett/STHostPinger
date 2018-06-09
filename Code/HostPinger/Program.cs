@@ -12,9 +12,9 @@ namespace jebbett
 
         static void Main()
         {
-            Console.Title = "SmartThings Host Pinger";
+            Console.Title = "Host Pinger";
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("---SmartThings Host Pinger V2.0---");
+            Console.WriteLine("---Host Pinger V4.0---");
             Console.WriteLine(" > Loading config..");
             if (!Config.TryLoad()) return;
             Console.WriteLine(" > Loaded");
@@ -25,8 +25,6 @@ namespace jebbett
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(" > Running ...... ");
             StateManager = new UserStateManager();
-
-            /////////////////// NEW
 
             //Thread thread = new Thread(() => CheckIP());
             CheckIP();

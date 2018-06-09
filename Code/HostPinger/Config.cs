@@ -10,6 +10,7 @@ namespace jebbett
         public static int CheckInterval { get; private set; }
         public static int TimeOut { get; private set; }
 		public static int ConsoleDebugLevel { get; private set; }
+        public static bool HeartBeat { get; private set; }
         public static string Endpoint_AccessToken { get; private set; }
         public static string EndpointUrl_Online { get; private set; }
         public static string EndpointUrl_Offline { get; private set; }
@@ -46,10 +47,11 @@ namespace jebbett
             CheckInterval = int.Parse(IPCheck.Attribute("checkInterval").Value);
             TimeOut = int.Parse(IPCheck.Attribute("timeOut").Value);
             ConsoleDebugLevel = int.Parse(IPCheck.Attribute("debugLevel").Value);
-            
-            //smartThingsEndpoints
+            HeartBeat = bool.Parse(IPCheck.Attribute("heartBeat").Value);
 
-            XElement eSTE = eConfig.Element("smartThingsEndpoints");
+            //App Endpoints
+
+            XElement eSTE = eConfig.Element("theEndpoints");
             Endpoint_AccessToken = eSTE.Attribute("accessToken").Value;
             EndpointUrl_Online = eSTE.Attribute("Online").Value;
             EndpointUrl_Offline = eSTE.Attribute("Offline").Value;
