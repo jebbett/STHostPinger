@@ -28,6 +28,7 @@
  *	23/07/17	1.8		Fixed the bugs from the previous two releases and hopefully tested it this time!
  *	12/01/18	1.9		Fixed error when creating new device
  *	06/03/18	1.10	Fixed spelling of 'received' throughout
+ *	09/06/18	1.11	Added support for HeartBeat
  *
  */
 
@@ -66,8 +67,7 @@ def initialize() {
     	generateAccessToken()
     	logWriter("URL FOR USE IN HOSTPINGER EXE:\n"+
         		"<!ENTITY accessToken '${state.accessToken}'>\n"+
-				"<!ENTITY appId '${app.id}'>\n"+
-				"<!ENTITY ide '${getApiServerUrl()}'>")
+				"<!ENTITY appURL '${getApiServerUrl()}/api/smartapps/installations/${app.id}'>")
     	if(state.lastEvent == null){state.lastEvent = "No event received, please ensure that config.config is setup correctly"}
    	}
 }
@@ -140,8 +140,11 @@ def lastEvt() {
 def EndPointInfo() {
 
     dynamicPage(name: "EndPointInfo", title: "End Point Information", install: false, uninstall: false) {
-    	section(title: "App ID") {
-        	paragraph "$app.id"
+    	section(title: "Instructions") {
+        	paragraph "It is recommended to open Live Logging so you can copy and paste the below values"
+        }        
+        section(title: "API URL") {
+        	paragraph "${getApiServerUrl()}/api/smartapps/installations/${app.id}"
         }
         section(title: "Access Token") {
         	if(!state.accessToken){
@@ -206,18 +209,24 @@ def pageChild() {
             input "hostSwitch", "capability.switch", title:"Turn This Device On/Off With Status", multiple: true, required: false
             input "hostDelay", type: "number", title: "Delay going offline (seconds)", required:true, defaultValue: 0
             paragraph "Offline delay can help to avoid a false negative or where a device briefly disconnects from the network, this delay should either be 0 to report actual results or should exceed your polling interval to handle errors"
+            input "heartBeat", "bool", title: "Expect HeartBeat", required: false, defaultValue: false, submitOnChange: true
+            paragraph "If turned on then the application sending the ping requests must also support HeartBeat, if a status update is not receieved after the number of seconds defined in the Delay field above"
 		}
   	}
 }
 
 
 def AppCommandReceived(command, host){
-
 	if (settings?.hostName == host){
     	if(command == "online"){
             hostSwitch?.on()
-            unschedule()
+            if(settings.heartBeat){
+            	runIn(theDelay, commandOffline)
+            }else{
+            	unschedule()
+            }
             logWriter("Is Online")
+            
         }else{
             if (settings?.hostDelay == "0"){
             	commandOffline()
@@ -231,6 +240,8 @@ def AppCommandReceived(command, host){
     	app.updateLabel("${appName} [${command}]")
     }
 }
+
+
 
 def commandOffline(){
     hostSwitch?.off()
