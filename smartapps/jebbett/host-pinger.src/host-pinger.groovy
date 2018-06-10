@@ -29,6 +29,7 @@
  *	12/01/18	1.9		Fixed error when creating new device
  *	06/03/18	1.10	Fixed spelling of 'received' throughout
  *	09/06/18	1.11	Added support for HeartBeat
+ *	10/06/18	1.12	Actually added support for Heartbeat and removed support for disco.
  *
  */
 
@@ -210,6 +211,7 @@ def pageChild() {
             input "hostDelay", type: "number", title: "Delay going offline (seconds)", required:true, defaultValue: 0
             paragraph "Offline delay can help to avoid a false negative or where a device briefly disconnects from the network, this delay should either be 0 to report actual results or should exceed your polling interval to handle errors"
             input "heartBeat", "bool", title: "Expect HeartBeat", required: false, defaultValue: false, submitOnChange: true
+            input "heartDelay", type: "number", title: "Minimum HeartBeat (seconds)", required:true, defaultValue: 0
             paragraph "If turned on then the application sending the ping requests must also support HeartBeat, if a status update is not receieved after the number of seconds defined in the Delay field above"
 		}
   	}
@@ -217,16 +219,17 @@ def pageChild() {
 
 
 def AppCommandReceived(command, host){
+	log.warn command
 	if (settings?.hostName == host){
     	if(command == "online"){
             hostSwitch?.on()
             if(settings.heartBeat){
-            	runIn(theDelay, commandOffline)
+            	def theHeartDelay = settings.heartDelay as int
+            	runIn(theHeartDelay, commandOffline)
             }else{
             	unschedule()
             }
             logWriter("Is Online")
-            
         }else{
             if (settings?.hostDelay == "0"){
             	commandOffline()
@@ -334,10 +337,9 @@ def OnCommandReceived() {
     def host = params.ipadd
     
     logWriter("Event Received: ${command} ${host}")
-    updateLog("set", "Status", settings?.evtLogNum, "${host} [${command}]")
-        
+    updateLog("set", "Status", settings?.evtLogNum, "${host} [${command}]")    
     childApps.each { child ->
-    	child.AppCommandReceived(command, host)
+    	child.AppCommandReceived("$command", "$host")
     }
     
     return
