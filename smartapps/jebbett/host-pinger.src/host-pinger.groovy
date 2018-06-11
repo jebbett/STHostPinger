@@ -219,11 +219,10 @@ def pageChild() {
 
 
 def AppCommandReceived(command, host){
-	log.warn command
 	if (settings?.hostName == host){
     	if(command == "online"){
             hostSwitch?.on()
-            if(settings.heartBeat){
+            if(settings?.heartBeat){
             	def theHeartDelay = settings.heartDelay as int
             	runIn(theHeartDelay, commandOffline)
             }else{
